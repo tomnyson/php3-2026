@@ -10,9 +10,10 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::all();
+        $keyword = $request->input('search');
+        $products = Product::where('name', 'like', '%' . $keyword . '%')->orderBy('created_at', 'desc')->paginate(5);
         return view('products.index', compact('products'));
     }
 
@@ -21,7 +22,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-        //
+        return view('products.create');
     }
 
     /**
@@ -29,7 +30,18 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+        if($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('images', 'public');
+        }
+        Product::create($validated);
+        return redirect()->route('products.index')->with('success', 'Product created successfully.');
+
     }
 
     /**
