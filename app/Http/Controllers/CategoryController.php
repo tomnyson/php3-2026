@@ -21,7 +21,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        //
+        return view('categories.create');
     }
 
     /**
@@ -29,7 +29,13 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            
+        ]);
+        Category::create($validated);
+        return redirect()->route('categories.index')->with('success', 'Category created successfully.');
+
     }
 
     /**
@@ -61,6 +67,7 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        //
+            $category->delete();
+            return redirect()->route('categories.index')->with('success', 'Category deleted successfully.');
     }
 }

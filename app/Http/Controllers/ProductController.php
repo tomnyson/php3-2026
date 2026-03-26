@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 class ProductController extends Controller
@@ -13,8 +14,9 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $keyword = $request->input('search');
-        $products = Product::where('name', 'like', '%' . $keyword . '%')->orderBy('created_at', 'desc')->paginate(5);
+        $products = Product::where('name', 'like', '%' . $keyword . '%')->orderBy('created_at', 'desc')->with('category')->paginate(5);
         return view('products.index', compact('products'));
+        
     }
 
     /**
@@ -22,7 +24,9 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view('products.create');
+        $categories = Category::all();
+        return view('products.create', compact('categories'));
+        
     }
 
     /**
@@ -35,10 +39,13 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'category_id' => 'required|exists:categories,id',
         ]);
         if($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('images', 'public');
+            
         }
+        var_dump($validated);
         Product::create($validated);
         return redirect()->route('products.index')->with('success', 'Product created successfully.');
 
