@@ -57,7 +57,7 @@
                         <td>${{ number_format($item->price, 2) }}</td>
                         <td>{{ $item->category ? $item->category->name : 'N/A' }}</td>
                         <td>
-                            <button class="btn btn-primary btn-sm">Edit</button>
+                            <a href="{{ route('products.edit', $item->id) }}" class="btn btn-primary btn-sm">Edit</a>
                             <form action="{{ route('products.destroy', $item->id) }}" method="POST"
                                 style="display:inline-block;">
                                 @csrf

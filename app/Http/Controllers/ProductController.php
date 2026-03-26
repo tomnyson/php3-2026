@@ -64,7 +64,9 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        //
+        $product = Product::findOrFail($product->id);
+        $categories = Category::all();
+        return view('products.edit', compact('product', 'categories'));
     }
 
     /**
@@ -72,7 +74,23 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'category_id' => 'required|exists:categories,id',
+        ]);
+        if($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('images', 'public');
+            
+        }else {
+            $validated['image'] = $product->image;
+        }
+        var_dump($validated);
+        $product->update($validated);
+        return redirect()->route('products.index')->with('success', 'Product updated successfully.');
+        
     }
 
     /**
